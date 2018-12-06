@@ -1,0 +1,1 @@
+This repository contains code, exercises and some of my own additions for Reinforcement Learning algorithms from [Deep Reinforcement Learning Hands-On](https://www.packtpub.com/big-data-and-business-intelligence/deep-reinforcement-learning-hands)
