@@ -1,72 +1,50 @@
 import gym
-# import numpy as np
-from collections import Counter, defaultdict
+from collections import defaultdict
 from tensorboardX import SummaryWriter
 
-
 GAMMA = 0.9
-ENV = 'FrozenLake-v0'
-# ENV = 'FrozenLake8x8-v0'
+ALPHA = 0.5
 TEST_EPISODES = 20
+ENV = 'FrozenLake-v0'
 
 
-class Agent():
+class Agent:
 
-    def __init__(self, gamma, env):
-        self.transitions_table = defaultdict(Counter)
-        self.rewards_table = defaultdict(float)
-        self.Qvalues_table = defaultdict(float)
-        self.gamma = gamma
-        self.env = gym.make(env)
+    def __init__(self):
+        self.env = gym.make(ENV)
         self.state = self.env.reset()
+        self.reward_table = defaultdict(float)
+        self.Qvalues_table = defaultdict(float)
 
-    def get_best_action(self, state):
-        best_Q, best_action = float("-inf"), 0
+    def sample_env(self):
+        old_state = self.state
+        action = self.env.action_space.sample()
+        new_state, reward, is_done, _ = self.env.step(action)
+        self.state = self.env.reset() if is_done else new_state
+        return (old_state, action, reward, new_state)
+
+    def get_best_value_and_action(self, state):
+        best_Qvalue, best_action = float("-inf"), 0.0
         for action in range(self.env.action_space.n):
-            Q = self.Qvalues_table[(state, action)]
-            if Q > best_Q:
-                best_Q = Q
+            value = self.Qvalues_table[(state, action)]
+            if best_Qvalue < value:
+                best_Qvalue = value
                 best_action = action
-        return best_action
+        return best_Qvalue, best_action
 
-    def value_iterate(self):
-        for state in range(self.env.observation_space.n):
-            for action in range(self.env.action_space.n):
-                Q_value = 0.0
-                transitions = self.transitions_table[(state, action)]
-                total = sum(transitions.values())
-                for new_state, num_transition in transitions.items():
-                    reward = self.rewards_table[(state, action, new_state)]
-                    new_best_action = self.get_best_action(new_state)
-                    Q_value += (num_transition /
-                                total) * (reward +
-                                          GAMMA *
-                                          self.Qvalues_table[(new_state,
-                                                              new_best_action)
-                                                             ])
-                self.Qvalues_table[(state, action)] = Q_value
-
-    def play_n_random_steps(self, n):
-        # for exploration
-        for _ in range(n):
-            action = self.env.action_space.sample()
-            new_state, reward, is_done, _ = self.env.step(action)
-            self.rewards_table[(self.state, action, new_state)] = reward
-            self.transitions_table[(self.state, action)][new_state] += 1
-            self.state = self.env.reset() if is_done else new_state
+    def Qvalue_update(self, state, action, reward, new_state):
+        best_Qvalue, _ = self.get_best_value_and_action(new_state)
+        new_Q = reward + GAMMA * best_Qvalue
+        old_Q = self.Qvalues_table[(state, action)]
+        self.Qvalues_table[(state, action)] = (
+            1 - ALPHA) * old_Q + ALPHA * new_Q
 
     def play_episode(self, env):
-        # we pass a seperate env here so that the state and env of the class
-        # don't change
         total_reward = 0.0
         state = env.reset()
         while True:
-            # we select action greedily(exploitation) here as exploration is
-            # already done by calling play_n_random_steps function
-            action = self.get_best_action(state)
+            _, action = self.get_best_value_and_action(state)
             new_state, reward, is_done, _ = env.step(action)
-            self.rewards_table[(state, action, new_state)] = reward
-            self.transitions_table[(state, action)][new_state] += 1
             total_reward += reward
             if is_done:
                 break
@@ -74,24 +52,21 @@ class Agent():
         return total_reward
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     test_env = gym.make(ENV)
-    agent = Agent(GAMMA, ENV)
-    writer = SummaryWriter()
+    writer = SummaryWriter(comment="-q-learning")
+    agent = Agent()
     iter_no = 0
     best_reward = 0.0
-
     while True:
         iter_no += 1
-        # play n random steps are update values
-        agent.play_n_random_steps(100)
-        agent.value_iterate()
-        reward = 0
+        old_state, action, reward, new_state = agent.sample_env()
+        agent.Qvalue_update(old_state, action, reward, new_state)
+        reward = 0.0
         for _ in range(TEST_EPISODES):
             reward += agent.play_episode(test_env)
         reward /= TEST_EPISODES
-        writer.add_scalar('reward', reward, iter_no)
-
+        writer.add_scalar("reward", reward, iter_no)
         if reward > best_reward:
             print("Best reward updated from %.3f to %.3f at %.1f "
                   "iterations" % (best_reward,
@@ -100,7 +75,5 @@ if __name__ == '__main__':
         if reward > 0.8:
             print('Successfully completed at {} iterations'.format(iter_no))
             break
-        if iter_no > 500:
-            print('Not suceesful')
-            break
     test_env.env.close()
+    agent.env.env.close()
