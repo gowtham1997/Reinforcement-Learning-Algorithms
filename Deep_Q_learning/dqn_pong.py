@@ -27,7 +27,7 @@ REPLAY_START_SIZE = 10000
 
 # Epsilon-greedy params
 EPSILON_MAX = 1.0
-EPSILON_MIN = 0.2
+EPSILON_MIN = 0.02
 EPSILON_DECAY_LAST_FRAME = 10**5
 
 # create namedtuple to store experience
@@ -164,7 +164,8 @@ if __name__ == '__main__':
             writer.add_scalar("reward_100", mean_reward, frame_idx)
             writer.add_scalar("reward", reward, frame_idx)
             if best_mean_reward is None or best_mean_reward < mean_reward:
-                torch.save(net.state_dict(), ENV + "-best.dat")
+                torch.save(net.state_dict(),
+                           'checkpoints/' + ENV + "-best.dat")
                 if best_mean_reward is not None:
                     print("Best mean reward updated %.3f -> %.3f" %
                           (best_mean_reward, mean_reward))
@@ -176,8 +177,9 @@ if __name__ == '__main__':
         if frame_idx < REPLAY_START_SIZE:
             continue
         if frame_idx % SYNC_TARGET_FRAMES == 0:
+            print('Syncing Frames')
             target_net.load_state_dict(net.state_dict())
-
+        # print('Backproping and updating net')
         optimizer.zero_grad()
         batch = buffer.sample(BATCH_SIZE)
         loss_v = calculate_loss(batch, net, target_net, device)
