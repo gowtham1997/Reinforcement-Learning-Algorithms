@@ -12,7 +12,7 @@ This repo contains code in pytorch(0.4) for training an agent to play atari game
 --- __pycache__ (not tracked)
 --- checkpoints -> stores model checkpoints(not tracked)
 --- runs -> logs for Tensorboard (not tracked)
---- wrappers.py -> wrappers to modify the environment
+ wrappers.py -> wrappers to modify the environment
  model.py -> contains the model
  dqn_pong.py -> for training the model
  dqn_play.py -> inference
