@@ -12,7 +12,7 @@ if __name__ == "__main__":
     env = gym.wrappers.Monitor(env, 'monitor')
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     net = model.DQN(env.observation_space.shape, env.action_space.n)
-    ck_path = 'checkpoints/' + ENV + '-best.dat'
+    ck_path = 'checkpoints/' + ENV + '-best_normal.dat'
     print(ck_path)
     # load the saved model
     net.load_state_dict(torch.load(
