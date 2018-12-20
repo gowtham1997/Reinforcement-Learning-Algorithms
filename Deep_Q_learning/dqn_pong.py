@@ -16,7 +16,7 @@ MEAN_REWARD_BOUND = 19.5
 
 # Training params
 BATCH_SIZE = 32
-GAMMA = 0.9
+GAMMA = 0.99
 LEARNING_RATE = 1e-4
 
 # Target Network params
