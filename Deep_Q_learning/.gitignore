@@ -1,6 +1,7 @@
-# tensorboard and GYM folders
+# tensorboard, GYM folders and checkpoints
 runs
 monitor
+checkpoints
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

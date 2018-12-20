@@ -57,7 +57,7 @@ class ExperienceBuffer:
             *[self.buffer[idx] for idx in batch_indices])
         return np.array(states), np.array(actions), \
             np.array(rewards, dtype=np.float32), \
-            np.array(dones, dtype=bool), np.array(new_states)
+            np.array(dones, dtype=np.uint8), np.array(new_states)
 
 
 class Agent:
@@ -79,7 +79,8 @@ class Agent:
             state_a = np.array([self.state], copy=False)
             state_v = torch.tensor(state_a).to(device)
             q_values_v = net(state_v)
-            _, action_v = torch.max(q_values_v)
+            # print(q_values_v)
+            _, action_v = torch.max(q_values_v, dim=1)
             action = int(action_v.item())
 
         new_state, reward, done, _ = self.env.step(action)
