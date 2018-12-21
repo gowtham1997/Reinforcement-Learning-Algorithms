@@ -1,5 +1,5 @@
-# Double Deep Q Learning For Atari
-This repo contains code in pytorch(0.4) for training an agent to play atari games using DDQN. This is an implementation of [Deepmind's paper](https://web.stanford.edu/class/psych209/Readings/MnihEtAlHassibis15NatureControlDeepRL.pdf).
+# Deep Q Learning For Atari
+This repo contains code in pytorch(0.4) for training an agent to play atari games using DQN. This is an implementation of [Deepmind's paper](https://web.stanford.edu/class/psych209/Readings/MnihEtAlHassibis15NatureControlDeepRL.pdf).
 
 <p align="center">
 <img src="file.gif"/> 
