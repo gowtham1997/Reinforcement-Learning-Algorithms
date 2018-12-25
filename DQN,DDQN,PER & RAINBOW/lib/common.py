@@ -118,7 +118,7 @@ class RewardTracker:
     def __exit__(self):
         self.writer.close()
 
-    def frame(self, frame_idx, reward, epsilon=None):
+    def reward(self, reward, frame_idx, epsilon=None):
         speed = (frame_idx - self.ts_frame) / (time.time() - self.ts)
         self.total_rewards.append(reward)
         # only use last 100 episodes to calculate mean reward
@@ -152,6 +152,7 @@ class EpsilonTracker:
         self.frame(0)
 
     def frame(self, frame):
+        # we update the selector's epsilon directly here
         self.epsilon_greedy_selector.epsilon = \
             max(self.epsilon_final, self.epsilon_start -
                 frame / self.epsilon_frames)
