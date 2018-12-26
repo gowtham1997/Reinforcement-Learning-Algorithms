@@ -52,7 +52,7 @@ if __name__ == "__main__":
             if len(buffer) < params['replay_initial']:
                 continue
 
-            optimizer.step()
+            optimizer.zero_grad()
             batch = buffer.sample(params['batch_size'])
             loss = calc_loss_dqn(
                 batch, net, target_net.target_model, params['gamma'], device)

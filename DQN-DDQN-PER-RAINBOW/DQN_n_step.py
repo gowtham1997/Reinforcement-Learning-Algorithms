@@ -24,7 +24,8 @@ if __name__ == "__main__":
     params = HYPERPARAMS['pong']
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print('Running on Device {}'.format(device))
-    writer = SummaryWriter(comment='- dqn_basic')
+    writer = writer = SummaryWriter(
+        comment="-" + params['run_name'] + "-%d-step" % args.n)
     env = gym.make(params['env_name'])
     env = wrappers.wrap_dqn(env)
     # print(env.observation_space.shape, env.action_space.n)
@@ -61,7 +62,7 @@ if __name__ == "__main__":
             if len(buffer) < params['replay_initial']:
                 continue
 
-            optimizer.step()
+            optimizer.zero_grad()
             batch = buffer.sample(params['batch_size'])
             loss = calc_loss_dqn(
                 batch, net, target_net.target_model,
