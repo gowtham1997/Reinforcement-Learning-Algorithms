@@ -92,7 +92,7 @@ def calc_loss_dqn(batch, net, target_net, gamma, device):
     states_v = torch.tensor(states).to(device)
     actions_v = torch.tensor(actions).to(device)
     rewards_v = torch.tensor(rewards).to(device)
-    dones_mask_v = torch.Bytetensor(dones).to(device)
+    dones_mask_v = torch.ByteTensor(dones).to(device)
     last_states_v = torch.tensor(last_states).to(device)
     predicted_Q_v = net(states_v).gather(
         1, actions_v.unsqueeze(-1)).squeeze(-1)
