@@ -15,8 +15,8 @@ import argparse
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='n-step DQN')
     parser.add_argument('-n',
-                        dest='the number of steps to unroll bellman equation',
                         default=1,
+                        type=int,
                         help='Enter the number of steps to unroll bellman eq')
     args = parser.parse_args()
 
