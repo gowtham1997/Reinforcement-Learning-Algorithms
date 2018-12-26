@@ -87,7 +87,17 @@ def unpack_batch(batch):
         np.array(last_states, copy=False)
 
 
-def calc_loss_dqn(batch, net, target_net, gamma, device):
+def calculate_mean_Q(states, net, device="cpu"):
+    mean_Q_vals = []
+    for batch in np.array_split(states, 64):
+        batch_v = torch.tensor(batch).to(device)
+        Q_vals_v = net(batch_v)
+        best_actionsQ_v = Q_vals_v.max(1)[0]
+        mean_Q_vals.append(best_actionsQ_v.mean().item())
+    return np.mean(mean_Q_vals)
+
+
+def calc_loss_dqn(batch, net, target_net, gamma, device='cpu', double=True):
     states, actions, rewards, dones, last_states = unpack_batch(batch)
     states_v = torch.tensor(states).to(device)
     actions_v = torch.tensor(actions).to(device)
@@ -96,7 +106,14 @@ def calc_loss_dqn(batch, net, target_net, gamma, device):
     last_states_v = torch.tensor(last_states).to(device)
     predicted_Q_v = net(states_v).gather(
         1, actions_v.unsqueeze(-1)).squeeze(-1)
-    next_state_Q_v = target_net(last_states_v).max(1)[0]
+    if double:
+        # use the net to get actions
+        # note max returns both max and argmax and we take the argmax
+        next_state_actions_v = net(last_states_v).max(1)[1]
+        next_state_Q_v = target_net(last_states_v).gather(
+            1, next_state_actions_v.unsqueeze(-1)).squeeze(-1)
+    else:
+        next_state_Q_v = target_net(last_states_v).max(1)[0]
     # use the dones_mask to 0 out values where last_state is none
     next_state_Q_v[dones_mask_v] = 0.0
     expected_Q_v = next_state_Q_v * gamma + rewards_v
