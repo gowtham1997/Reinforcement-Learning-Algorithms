@@ -76,7 +76,7 @@ def unpack_batch(batch):
         if exp.last_state is None:
             # we just add prev_state in case last_state is none
             # This will be masked with dones array during the loss calculation
-            last_states.append(exp.state)
+            last_states.append(np.array(exp.state, copy=False))
         else:
             last_states.append(np.array(exp.last_state, copy=False))
 
