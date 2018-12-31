@@ -13,7 +13,7 @@ import argparse
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='n-step DQN')
+    parser = argparse.ArgumentParser(description='n-step noisy DQN')
     parser.add_argument('-n',
                         default=1,
                         type=int,
@@ -25,7 +25,7 @@ if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print('Running on Device {}'.format(device))
     writer = writer = SummaryWriter(
-        comment="-" + params['run_name'] + "-%d-step" % args.n)
+        comment="-" + params['run_name'] + "-%d-step noisy-net" % args.n)
     env = gym.make(params['env_name'])
     env = wrappers.wrap_dqn(env)
     # print(env.observation_space.shape, env.action_space.n)
