@@ -123,7 +123,7 @@ class NoisyDQN(nn.Module):
         conv_out = self.conv(fx).view(fx.shape[0], -1)
         return self.fc(conv_out)
 
-    def noisy_layer_sigma_snr(self):
+    def noisy_layers_sigma_snr(self):
         return [
             ((layer.weight ** 2).mean().sqrt() /
              (layer.sigma_weight ** 2).mean().sqrt()).data.cpu().numpy()[0]
