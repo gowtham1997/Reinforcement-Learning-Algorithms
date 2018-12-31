@@ -126,6 +126,6 @@ class NoisyDQN(nn.Module):
     def noisy_layers_sigma_snr(self):
         return [
             ((layer.weight ** 2).mean().sqrt() /
-             (layer.sigma_weight ** 2).mean().sqrt()).data.cpu().numpy()[0]
+             (layer.sigma_weight ** 2).mean().sqrt()).item()
             for layer in self.noisy_layers
         ]
