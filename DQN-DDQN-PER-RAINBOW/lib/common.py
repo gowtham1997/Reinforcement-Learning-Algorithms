@@ -116,7 +116,7 @@ def calc_loss_dqn(batch, net, target_net, gamma, device='cpu', double=False):
         next_state_Q_v = target_net(last_states_v).max(1)[0]
     # use the dones_mask to 0 out values where last_state is none
     next_state_Q_v[dones_mask_v] = 0.0
-    expected_Q_v = next_state_Q_v * gamma + rewards_v
+    expected_Q_v = next_state_Q_v.detach() * gamma + rewards_v
     return nn.MSELoss()(predicted_Q_v, expected_Q_v)
 
 
