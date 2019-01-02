@@ -97,7 +97,7 @@ def calculate_mean_Q(states, net, device="cpu"):
     return np.mean(mean_Q_vals)
 
 
-def calc_loss_dqn(batch, net, target_net, gamma, device='cpu', double=True):
+def calc_loss_dqn(batch, net, target_net, gamma, device='cpu', double=False):
     states, actions, rewards, dones, last_states = unpack_batch(batch)
     states_v = torch.tensor(states).to(device)
     actions_v = torch.tensor(actions).to(device)
