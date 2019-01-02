@@ -69,14 +69,15 @@ def unpack_batch(batch):
     states, actions, rewards, dones, last_states = [], [], [], [], []
 
     for exp in batch:
-        states.append(np.array(exp.state, copy=False))
-        actions.append(np.array(exp.action))
-        rewards.append(np.array(exp.reward))
+        state = np.array(exp.state, copy=False)
+        states.append(state)
+        actions.append(exp.action)
+        rewards.append(exp.reward)
         dones.append(exp.last_state is None)
         if exp.last_state is None:
             # we just add prev_state in case last_state is none
             # This will be masked with dones array during the loss calculation
-            last_states.append(np.array(exp.state, copy=False))
+            last_states.append(state)
         else:
             last_states.append(np.array(exp.last_state, copy=False))
 
@@ -136,6 +137,7 @@ class RewardTracker:
         self.writer.close()
 
     def reward(self, reward, frame_idx, epsilon=None):
+        # epsilon is None as we don't use eps in cases like noisy_nets
         speed = (frame_idx - self.ts_frame) / (time.time() - self.ts)
         self.total_rewards.append(reward)
         # only use last 100 episodes to calculate mean reward
@@ -153,11 +155,10 @@ class RewardTracker:
             self.total_rewards), frame_idx)
         self.ts_frame = frame_idx
         self.ts = time.time()
-        if mean_reward >= self.stop_reward:
+        if mean_reward > self.stop_reward:
             print('solved in %d frames' % frame_idx)
             return True
-        else:
-            return False
+        return False
 
 
 class EpsilonTracker:
