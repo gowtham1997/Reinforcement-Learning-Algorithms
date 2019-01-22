@@ -41,7 +41,7 @@ def calc_q_vals(rewards):
     return list(reversed(q_vals))
 
 
-if __name__ == "__main":
+if __name__ == "__main__":
 
     env = gym.make('CartPole-v0')
     writer = SummaryWriter(comment='-cartpole_reinforce')
