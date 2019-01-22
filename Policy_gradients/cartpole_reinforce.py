@@ -47,6 +47,7 @@ if __name__ == "__main__":
     writer = SummaryWriter(comment='-cartpole_reinforce')
 
     net = PGN(env.observation_space.shape[0], env.action_space.n)
+    print(net)
     # float_32_preprocesser vectorises input into torch float32 tensors
     agent = ptan.agent.PolicyAgent(
         net, apply_softmax=True, preprocessor=ptan.agent.float32_preprocessor)
@@ -54,6 +55,7 @@ if __name__ == "__main__":
     optimizer = optim.Adam(net.parameters(), lr=LEARNING_RATE)
 
     total_rewards = []
+    step_idx = 0
     done_episodes = 0
 
     batch_episodes = 0
@@ -63,11 +65,11 @@ if __name__ == "__main__":
 
     for step_idx, exp in enumerate(exp_source):
         batch_states.append(exp.state)
-        batch_actions.append(exp.action)
+        batch_actions.append(int(exp.action))
         curr_rewards.append(exp.reward)
 
         # if episode is over calculate accumulated q_val from local rewards
-        if exp.reward is None:
+        if exp.last_state is None:
             batch_episodes += 1
             batch_qvals.extend(calc_q_vals(curr_rewards))
             curr_rewards.clear()
@@ -101,7 +103,7 @@ if __name__ == "__main__":
         logits_v = net(states_v)
         log_prob_v = F.log_softmax(logits_v, dim=1)
 
-        log_prob_actions_v = batch_qvals * \
+        log_prob_actions_v = batch_qvals_v * \
             log_prob_v[range(len(batch_states)), batch_actions_v]
         loss_v = -log_prob_actions_v.mean()
 
