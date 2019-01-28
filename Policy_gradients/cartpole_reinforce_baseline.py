@@ -61,20 +61,23 @@ if __name__ == "__main__":
     done_episodes = 0
 
     batch_episodes = 0
-    # to store local rewards in an episode
-    curr_rewards = []
     batch_states, batch_actions, batch_qvals = [], [], []
-
+    # cur_rewards to store local rewards
+    curr_states, curr_actions, curr_rewards = [], [], []
     for step_idx, exp in enumerate(exp_source):
-        batch_states.append(exp.state)
-        batch_actions.append(int(exp.action))
+        curr_states.append(exp.state)
+        curr_actions.append(int(exp.action))
         curr_rewards.append(exp.reward)
 
         # if episode is over calculate accumulated q_val from local rewards
         if exp.last_state is None:
             batch_episodes += 1
+            batch_states.extend(curr_states)
+            batch_actions.extend(curr_actions)
             batch_qvals.extend(calc_q_vals(curr_rewards))
             curr_rewards.clear()
+            curr_states.clear()
+            curr_actions.clear()
 
         # bookkeeping and printing progress to tensorboard
         # handle new rewards
