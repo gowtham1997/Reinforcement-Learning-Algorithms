@@ -52,7 +52,7 @@ class A2C(nn.Module):
         return int(np.prod(out.size()))
 
     def forward(self, x):
-        fx = x.float() / 256
+        fx = x.float() / 255.0
         conv_out = self.conv(fx).view(fx.size()[0], -1)
         return self.policy(conv_out), self.value(conv_out)
 
@@ -139,8 +139,8 @@ if __name__ == "__main__":
                     logits_v, dim=1), F.softmax(logits_v, dim=1)
                 advantage_v = vals_ref_v - values_v
 
-                loss_policy_v = advantage_v.detach(
-                ) * log_probs_v[range(BATCH_SIZE), actions_v]
+                loss_policy_v = advantage_v * \
+                    log_probs_v[range(BATCH_SIZE), actions_v]
                 loss_policy_v = -(loss_policy_v).mean()
 
                 entropy_loss_v = ENTROPY_BETA * \
