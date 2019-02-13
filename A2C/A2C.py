@@ -132,12 +132,13 @@ if __name__ == "__main__":
 
                 optimizer.zero_grad()
                 logits_v, values_v = net(states_v)
+                advantage_v = vals_ref_v - values_v.squeeze(-1)
 
-                value_loss_v = F.mse_loss(vals_ref_v, values_v.squeeze(-1))
+                value_loss_v = advantage_v.pow(2).mean()
 
                 log_probs_v, probs_v = F.log_softmax(
                     logits_v, dim=1), F.softmax(logits_v, dim=1)
-                advantage_v = vals_ref_v - values_v.squeeze(-1)
+
                 loss_policy_v = advantage_v * \
                     log_probs_v[range(BATCH_SIZE), actions_v]
                 loss_policy_v = -loss_policy_v.mean()
