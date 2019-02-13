@@ -15,8 +15,8 @@ from lib import common
 GAMMA = 0.99
 LEARNING_RATE = 0.001
 ENTROPY_BETA = 0.01
-BATCH_SIZE = 128
-NUM_ENVS = 50
+BATCH_SIZE = 10
+NUM_ENVS = 1
 
 REWARD_STEPS = 4
 CLIP_GRAD = 0.1
@@ -133,15 +133,14 @@ if __name__ == "__main__":
                 optimizer.zero_grad()
                 logits_v, values_v = net(states_v)
 
-                value_loss_v = F.mse_loss(vals_ref_v, values_v)
+                value_loss_v = F.mse_loss(vals_ref_v, values_v.squeeze(-1))
 
                 log_probs_v, probs_v = F.log_softmax(
                     logits_v, dim=1), F.softmax(logits_v, dim=1)
-                advantage_v = vals_ref_v - values_v
-
+                advantage_v = vals_ref_v - values_v.squeeze(-1)
                 loss_policy_v = advantage_v * \
                     log_probs_v[range(BATCH_SIZE), actions_v]
-                loss_policy_v = -(loss_policy_v).mean()
+                loss_policy_v = -loss_policy_v.mean()
 
                 entropy_loss_v = ENTROPY_BETA * \
                     (probs_v * log_probs_v).sum(dim=1).mean()
