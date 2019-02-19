@@ -83,6 +83,7 @@ if __name__ == "__main__":
                     if isinstance(train_entry, TotalReward):
                         if tracker.reward(train_entry.reward, step_idx):
                             break
+                        continue
 
                     step_idx += 1
                     batch.append(train_entry)
