@@ -43,7 +43,7 @@ def data_func(net, device, train_queue):
     for exp in exp_source:
         new_rewards = exp_source.pop_total_rewards()
         if new_rewards:
-            train_queue.put(TotalReward(np.mean(new_rewards)))
+            train_queue.put(TotalReward(reward=np.mean(new_rewards)))
         train_queue.put(exp)
 
 
@@ -83,7 +83,6 @@ if __name__ == "__main__":
                     if isinstance(train_entry, TotalReward):
                         if tracker.reward(train_entry.reward, step_idx):
                             break
-                        continue
 
                     step_idx += 1
                     batch.append(train_entry)
@@ -104,7 +103,7 @@ if __name__ == "__main__":
                     loss_value_v = F.mse_loss(value_v.squeeze(-1), vals_ref_v)
                     # print(f'loss_value_v shape: {loss_value_v.shape}')
                     log_prob_v = F.log_softmax(logits_v, dim=1)
-                    adv_v = vals_ref_v - value_v.detach()
+                    adv_v = vals_ref_v - value_v.squeeze(-1).detach()
                     # print(vals_ref_v, value_v)
                     # print(f'adv_v shape: {adv_v.shape}')
                     log_prob_actions_v = adv_v * \
