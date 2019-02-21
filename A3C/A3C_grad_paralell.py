@@ -1,6 +1,8 @@
 import gym
 import ptan
-import argparse
+import numpy as np
+# import argparse
+import copy
 from tensorboardX import SummaryWriter
 
 import torch
@@ -108,12 +110,7 @@ def grads_func(proc_name, net, device, train_queue):
 
 if __name__ == "__main__":
     mp.set_start_method('spawn')
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--cuda", default=False,
-                        action="store_true", help="Enable cuda")
-    parser.add_argument("-n", "--name", required=True, help="Name of the run")
-    args = parser.parse_args()
-    device = "cuda" if args.cuda else "cpu"
+    device = "cuda" if torch.cuda.is_available() else "cpu"
 
     env = make_env()
     net = common.AtariA2C(env.observation_space.shape,
@@ -125,7 +122,7 @@ if __name__ == "__main__":
     train_queue = mp.Queue(maxsize=PROCESSES_COUNT)
     data_proc_list = []
     for proc_idx in range(PROCESSES_COUNT):
-        proc_name = "-a3c-grad_" + NAME + "_" + args.name + "#%d" % proc_idx
+        proc_name = "-a3c-grad_" + NAME + "_" + "#%d" % proc_idx
         data_proc = mp.Process(target=grads_func, args=(
             proc_name, net, device, train_queue))
         data_proc.start()
@@ -145,13 +142,11 @@ if __name__ == "__main__":
             if grad_buffer is None:
                 grad_buffer = train_entry
             else:
-                new_grad_buffer = []
                 for tgt_grad, grad in zip(grad_buffer, train_entry):
-                    tgt_grad = tgt_grad + grad
-                    new_grad_buffer.append(tgt_grad)
+                    tgt_grad += grad
 
             if step_idx % TRAIN_BATCH == 0:
-                for param, grad in zip(net.parameters(), new_grad_buffer):
+                for param, grad in zip(net.parameters(), grad_buffer):
                     param.grad = torch.FloatTensor(grad).to(device)
 
                 nn_utils.clip_grad_norm_(net.parameters(), CLIP_GRAD)
