@@ -1,13 +1,21 @@
 """Summary
 
-Attributes:
-    BATCH_SIZE (int): Description
-    ENTROPY_BETA (float): Description
-    ENV_ID (str): Description
-    GAMMA (float): Description
-    LEARNING_RATE (float): Description
-    REWARD_STEPS (int): Description
-    TEST_ITERS (int): Description
+Attributes
+----------
+BATCH_SIZE : int
+Description
+ENTROPY_BETA : float
+Description
+ENV_ID : str
+Description
+GAMMA : float
+Description
+LEARNING_RATE : float
+Description
+REWARD_STEPS : int
+Description
+TEST_ITERS : int
+Description
 """
 import gym
 import pybullet_envs
@@ -41,14 +49,21 @@ TEST_ITERS = 1000
 def test_net(net, env, count=10, device="cpu"):
     """Summary
 
-    Args:
-        net (TYPE): Description
-        env (TYPE): Description
-        count (int, optional): Description
-        device (str, optional): Description
+    Parameters
+    ----------
+    net : TYPE
+        Description
+    env : TYPE
+        Description
+    count : int, optional
+        Description
+    device : str, optional
+        Description
 
-    Returns:
-        TYPE: Description
+    Returns
+    -------
+    TYPE
+        Description
     """
     rewards = 0.0
     steps = 0
@@ -70,13 +85,19 @@ def test_net(net, env, count=10, device="cpu"):
 def log_gaussian_policy(mu_v, var_v, actions_v):
     """Summary
 
-    Args:
-        mu_v (TYPE): Description
-        var_v (TYPE): Description
-        actions_v (TYPE): Description
+    Parameters
+    ----------
+    mu_v : TYPE
+        Description
+    var_v : TYPE
+        Description
+    actions_v : TYPE
+        Description
 
-    Returns:
-        TYPE: Description
+    Returns
+    -------
+    TYPE
+        Description
     """
     p1 = - ((mu_v - actions_v) ** 2 / (2 * var_v.clamp(min=1e-3)))
     p2 = - torch.log(torch.sqrt(2 * math.pi * var_v))
@@ -86,11 +107,15 @@ def log_gaussian_policy(mu_v, var_v, actions_v):
 def entropy_gaussian(var_v):
     """Summary
 
-    Args:
-        var_v (TYPE): Description
+    Parameters
+    ----------
+    var_v : TYPE
+        Description
 
-    Returns:
-        TYPE: Description
+    Returns
+    -------
+    TYPE
+        Description
     """
     return (torch.log(2 * math.pi * var_v) + 1) / 2
 
