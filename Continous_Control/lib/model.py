@@ -39,16 +39,18 @@ class ModelA2C(nn.Module):
         action_size : tuple of ints
             shape of the actions(outputs)
         """
+        super().__init__()
         self.fc = nn.Sequential(
             nn.Linear(obs_size, HID_SIZE),
-            nn.ReLU())
+            nn.ReLU(),
+        )
         self.mu = nn.Sequential(
             nn.Linear(HID_SIZE, action_size),
-            nn.Tanh()
+            nn.Tanh(),
         )
         self.var = nn.Sequential(
             nn.Linear(HID_SIZE, action_size),
-            nn.Softplus()
+            nn.Softplus(),
         )
         self.value = nn.Linear(HID_SIZE, 1)
 
@@ -92,6 +94,7 @@ class AgentA2C(ptan.agent.BaseAgent):
         device : string
         The device to move or perform the operations on
         """
+        super().__init__()
         self.net = net
         self.device = device
 
@@ -117,6 +120,6 @@ class AgentA2C(ptan.agent.BaseAgent):
         sigma_np = torch.sqrt(var_v).data.cpu().numpy()
         # sample from normal distribution
         actions = np.random.normal(mu_np, sigma_np)
-        actions = np.clip(-1, 1)
+        actions = np.clip(actions, -1, 1)
 
         return actions, agent_states
