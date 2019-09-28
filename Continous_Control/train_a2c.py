@@ -1,21 +1,21 @@
-"""Summary
+"""Code to train an a2c model on minitaur pybullet env.
 
 Attributes
 ----------
 BATCH_SIZE : int
-Description
+batch size during each epoch
 ENTROPY_BETA : float
-Description
+weight assigned to entropy loss
 ENV_ID : str
-Description
+Environment ID for GYM
 GAMMA : float
-Description
+Discount factor
 LEARNING_RATE : float
-Description
+learning rate for training the network
 REWARD_STEPS : int
-Description
+Steps to unroll the bellman eq while calculating reward
 TEST_ITERS : int
-Description
+We test the updated model once every TEST_ITERS times
 """
 import gym
 import pybullet_envs
@@ -47,23 +47,23 @@ TEST_ITERS = 1000
 
 
 def test_net(net, env, count=10, device="cpu"):
-    """Summary
+    """Test the latest net and return the rewards and steps
 
     Parameters
     ----------
-    net : TYPE
-        Description
-    env : TYPE
-        Description
+    net : torch nn Module
+        The network
+    env : gym environment
+        The environment
     count : int, optional
-        Description
+        The number of times to test the network
     device : str, optional
-        Description
+        The device to perform computation
 
     Returns
     -------
-    TYPE
-        Description
+    Float
+        Avg rewards and steps across count test runs.
     """
     rewards = 0.0
     steps = 0
@@ -83,21 +83,22 @@ def test_net(net, env, count=10, device="cpu"):
 
 
 def log_gaussian_policy(mu_v, var_v, actions_v):
-    """Summary
+    """Returns the log of gaussian distribution which is the log of the policy
+    in our case
 
     Parameters
     ----------
-    mu_v : TYPE
-        Description
-    var_v : TYPE
-        Description
-    actions_v : TYPE
-        Description
+    mu_v : torch FloatTensor
+        mean of the gaussian distribution
+    var_v : torch FloatTensor
+        variance of the gaussian distribution
+    actions_v : torch FloatTensor
+        actions vetor sampled using the policy
 
     Returns
     -------
-    TYPE
-        Description
+    torch FloatTensor
+        log of gaussian distribution
     """
     p1 = - ((mu_v - actions_v) ** 2 / (2 * var_v.clamp(min=1e-3)))
     p2 = - torch.log(torch.sqrt(2 * math.pi * var_v))
@@ -105,17 +106,17 @@ def log_gaussian_policy(mu_v, var_v, actions_v):
 
 
 def entropy_gaussian(var_v):
-    """Summary
+    """Returns the entropy of the gaussian distribution
 
     Parameters
     ----------
-    var_v : TYPE
-        Description
+    var_v : torch FloatTensor
+        variance of the gaussian distribution
 
     Returns
     -------
-    TYPE
-        Description
+    torch FloatTensor
+        Entropy
     """
     return (torch.log(2 * math.pi * var_v) + 1) / 2
 
@@ -135,7 +136,7 @@ if __name__ == "__main__":
 
     writer = SummaryWriter(comment="-a2c_" + args.name)
     net = model.ModelA2C(
-        env.observation_space.shape, env.action_size.shape).to(device)
+        env.observation_space.shape[0], env.action_space.shape[0]).to(device)
     print(net)
     agent = model.AgentA2C(device=device, net=net)
     exp_source = ptan.experience.ExperienceSourceFirstLast(
