@@ -1,5 +1,5 @@
 torch==0.4.1
-numpy==1.15.4
+numpy==1.22.0
 opencv_python==3.4.0.14
 gym==0.10.9
 tensorboardX==1.5
